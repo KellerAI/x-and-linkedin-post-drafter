@@ -1,0 +1,20 @@
+{
+  "name": "kellerai-x-and-linkedin-post-drafter",
+  "interface": {
+    "displayName": "KellerAI: X and LinkedIn Post Drafter"
+  },
+  "plugins": [
+    {
+      "name": "x-and-linkedin-post-drafter",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "x-and-linkedin-post-drafter",
+  "version": "0.1.0",
+  "description": "Posts in your own voice, drafted, never posted. Drafts X and LinkedIn posts and replies in your own voice from a short voice card, with a claim check and a character count on every draft. Skills only; no tools, hooks, scripts or telemetry.",
+  "author": {
+    "name": "KellerAI",
+    "url": "https://kellerai.io"
+  },
+  "homepage": "https://kellerai.io",
+  "repository": "https://github.com/KellerAI/x-and-linkedin-post-drafter",
+  "license": "Apache-2.0",
+  "keywords": [
+    "writing",
+    "social",
+    "linkedin",
+    "x",
+    "drafting"
+  ]
+}
