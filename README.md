@@ -25,7 +25,7 @@ Install lines pin the release payload commit. It holds every file the plugin loa
 Hermes Agent:
 
 ```bash
-hermes plugins install KellerAI/x-and-linkedin-post-drafter --ref <release-sha> --no-enable
+hermes plugins install KellerAI/x-and-linkedin-post-drafter --ref 62898b7a6d566e2fd6c04a0db6796652cc2a104f --no-enable
 hermes plugins enable x-and-linkedin-post-drafter
 ```
 
@@ -34,7 +34,7 @@ Portable packages stay disabled until you enable them, and enabling takes effect
 OpenAI Codex:
 
 ```bash
-codex plugin marketplace add KellerAI/x-and-linkedin-post-drafter --ref <release-sha>
+codex plugin marketplace add KellerAI/x-and-linkedin-post-drafter --ref 62898b7a6d566e2fd6c04a0db6796652cc2a104f
 codex plugin add x-and-linkedin-post-drafter@kellerai-x-and-linkedin-post-drafter
 ```
 
