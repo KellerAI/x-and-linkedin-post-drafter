@@ -20,6 +20,8 @@ Drafts X and LinkedIn posts and replies in your own voice from a short voice car
 
 ## Install
 
+Install lines pin the release payload commit. It holds every file the plugin loads; the `v0.1.0` tag adds only this pin to the README and the changelog.
+
 Hermes Agent:
 
 ```bash
@@ -27,9 +29,18 @@ hermes plugins install KellerAI/x-and-linkedin-post-drafter --ref <release-sha> 
 hermes plugins enable x-and-linkedin-post-drafter
 ```
 
-Portable packages stay disabled until you enable them. Once enabled, the skills appear as `x-and-linkedin-post-drafter:get-started` and `x-and-linkedin-post-drafter:voice-card` and `x-and-linkedin-post-drafter:draft-post`.
+Portable packages stay disabled until you enable them, and enabling takes effect on your next session. Hermes namespaces portable skills by plugin. On Hermes 0.22 they load as `agent-plugin-x-and-linkedin-post-drafter-3f3e2d58:draft-post`, `agent-plugin-x-and-linkedin-post-drafter-3f3e2d58:get-started`, `agent-plugin-x-and-linkedin-post-drafter-3f3e2d58:voice-card`.
 
-OpenAI Codex or the ChatGPT desktop app: this repository ships a marketplace file at `.agents/plugins/marketplace.json`. Add the repository as a plugin marketplace and install `x-and-linkedin-post-drafter`.
+OpenAI Codex:
+
+```bash
+codex plugin marketplace add KellerAI/x-and-linkedin-post-drafter --ref <release-sha>
+codex plugin add x-and-linkedin-post-drafter@kellerai-x-and-linkedin-post-drafter
+```
+
+`codex plugin add` enables the plugin when it installs it. `codex plugin remove x-and-linkedin-post-drafter@kellerai-x-and-linkedin-post-drafter` uninstalls it and keeps the marketplace. Skills load in Codex as `x-and-linkedin-post-drafter:draft-post`, `x-and-linkedin-post-drafter:get-started`, `x-and-linkedin-post-drafter:voice-card`. The ChatGPT desktop app reads the same `.agents/plugins/marketplace.json` format according to OpenAI's plugin documentation; it has not been tested separately here.
+
+Tested on 2026-11-26 with Hermes Agent 0.22.0 and Codex 0.166.0: pinned install, `hermes plugins validate` and `doctor`, and the Codex marketplace listing. Skill loading and enable/disable were verified on the sibling plugin `weekly-bot-upgrade-reviewer`, which has the same package layout; they were not repeated here.
 
 ## Skills
 

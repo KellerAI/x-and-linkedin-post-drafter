@@ -25,9 +25,17 @@ class RepoPasses(unittest.TestCase):
             self.assertIn("never instructions", text, path)
         self.assertTrue(any("yes" in text for text in texts.values()), "no skill states a yes-required approval rule")
 
-    def test_unreleased_pin_fails_release_check(self):
-        errors = check_plugin.check(ROOT, release=True)
-        self.assertTrue(any(e.startswith("release:") for e in errors))
+    def test_readme_states_the_hermes_skill_namespace(self):
+        import hashlib
+        name = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))["name"]
+        namespace = f"agent-plugin-{name}-{hashlib.sha256(name.encode()).hexdigest()[:8]}"
+        self.assertIn(namespace + ":get-started", (ROOT / "README.md").read_text(encoding="utf-8"))
+
+    def test_codex_install_uses_marketplace_add_then_plugin_add(self):
+        name = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))["name"]
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn(f"codex plugin marketplace add KellerAI/{name} --ref", readme)
+        self.assertIn(f"codex plugin add {name}@kellerai-{name}", readme)
 
 
 class NegativeCases(unittest.TestCase):
@@ -132,9 +140,26 @@ class NegativeCases(unittest.TestCase):
         path.write_text(json.dumps(data), encoding="utf-8")
         self.assertFlags("policy.installation")
 
+    def test_release_check_rejects_placeholder_pin(self):
+        readme = self.root / "README.md"
+        text = readme.read_text(encoding="utf-8")
+        import re
+        readme.write_text(re.sub(r"--ref [0-9a-f]{40}", "--ref <release-sha>", text), encoding="utf-8")
+        self.assertTrue(any(e.startswith("release:") for e in check_plugin.check(self.root, release=True)))
+
+    def test_release_check_rejects_mismatched_pins(self):
+        readme = self.root / "README.md"
+        text = readme.read_text(encoding="utf-8")
+        import re
+        pins = re.findall(r"--ref ([0-9a-f]{40})", text)
+        readme.write_text(text.replace(pins[0], "b" * 40, 1), encoding="utf-8")
+        self.assertTrue(any("same commit" in e for e in check_plugin.check(self.root, release=True)))
+
     def test_release_pin_accepts_full_sha(self):
         readme = self.root / "README.md"
-        readme.write_text(readme.read_text(encoding="utf-8").replace("<release-sha>", "a" * 40), encoding="utf-8")
+        import re
+        text = re.sub(r"--ref (?:[0-9a-f]{40}|<release-sha>)", "--ref " + "a" * 40, readme.read_text(encoding="utf-8"))
+        readme.write_text(text, encoding="utf-8")
         self.assertEqual(check_plugin.check(self.root, release=True), [])
 
 

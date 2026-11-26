@@ -87,6 +87,23 @@ def parse_frontmatter(text: str) -> dict[str, str]:
     return fields
 
 
+def check_pin_in_history(root: Path, pin: str) -> list[str]:
+    """The pinned commit must be an ancestor of HEAD and differ from HEAD only in README.md and CHANGELOG.md,
+    so the pinned install loads exactly the files the tagged commit ships."""
+    import subprocess
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True)
+
+    if git("cat-file", "-e", f"{pin}^{{commit}}").returncode != 0:
+        return [f"release: pinned commit {pin[:12]} is not in this repository"]
+    if git("merge-base", "--is-ancestor", pin, "HEAD").returncode != 0:
+        return [f"release: pinned commit {pin[:12]} is not an ancestor of HEAD"]
+    changed = {l for l in git("diff", "--name-only", pin, "HEAD").stdout.splitlines() if l}
+    extra = sorted(changed - {"README.md", "CHANGELOG.md"})
+    return [f"release: files changed after the pinned commit besides README.md and CHANGELOG.md: {extra}"] if extra else []
+
+
 def check(root: Path, release: bool = False) -> list[str]:
     errors: list[str] = []
     manifest_path = root / "plugin.json"
@@ -193,9 +210,15 @@ def check(root: Path, release: bool = False) -> list[str]:
                 errors.append(f"{rel}:{line}: private term")
 
     if release:
-        pins = re.findall(r"hermes plugins install \S+ --ref (\S+)", readme)
-        if not pins or not all(re.fullmatch(r"[0-9a-f]{40}", p) for p in pins):
-            errors.append("release: README install line must pin a 40-character commit")
+        hermes_pins = re.findall(r"hermes plugins install \S+ --ref (\S+)", readme)
+        codex_pins = re.findall(r"codex plugin marketplace add \S+ --ref (\S+)", readme)
+        pins = hermes_pins + codex_pins
+        if not hermes_pins or not codex_pins or not all(re.fullmatch(r"[0-9a-f]{40}", p) for p in pins):
+            errors.append("release: README Hermes and Codex install lines must pin a 40-character commit")
+        elif len(set(pins)) != 1:
+            errors.append("release: README Hermes and Codex install lines must pin the same commit")
+        elif (root / ".git").exists():
+            errors.extend(check_pin_in_history(root, pins[0]))
     return errors
 
 
